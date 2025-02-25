@@ -47,16 +47,31 @@ impl Field {
     }
 
     /// Modular inverse (for division)
-    pub fn inverse(&self) -> u32 {
+    pub fn inverse(&self) -> Self {
         if let Some(inv) = Self::mod_inverse(self) {
-            inv
+            Self {
+                value: inv,
+                order: self.order,
+            }
         } else {
-            0
+            Self::zero(self.order)
         }
     }
 
     /// Division (a / b = a * b⁻¹ mod p)
-    pub fn divide() {}
+    pub fn divide(&self, b: u32) -> Self {
+        let b_field: Field = Field {
+            value: b,
+            order: self.order,
+        };
+
+        let inverse_b: &Field = &Field {
+            value: b_field.inverse().value,
+            order: b_field.order,
+        };
+
+        self.multiply(inverse_b)
+    }
 
     /// Modular exponentiation (a^exp mod p) using fast exponentiation
     pub fn pow() {}
