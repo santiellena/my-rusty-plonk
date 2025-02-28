@@ -2,12 +2,19 @@
 mod gcd;
 
 #[derive(Clone, Debug)]
-pub struct Field {
+pub struct FieldElement {
     pub value: u32,
     pub order: u32,
 }
 
-impl Field {
+// use PartialEq trait to check whether two fields are equal or not
+impl PartialEq for FieldElement {
+    fn eq(&self, other: &FieldElement) -> bool {
+        self.value == other.value && self.order == other.order
+    }
+}
+
+impl FieldElement {
     /// Constructor
     pub fn new(value: u32, order: u32) -> Self {
         Self {
@@ -16,19 +23,19 @@ impl Field {
         }
     }
 
-    /// Addition in the field
+    /// Addition in the FieldElement
     pub fn add(&self, other: &Self) -> Self {
         assert_eq!(self.order, other.order, "Fields MUST have the same order");
         Self::new(self.value + other.value, self.order)
     }
 
-    /// Subtraction in the field
+    /// Subtraction in the FieldElement
     pub fn substract(&self, other: &Self) -> Self {
         assert_eq!(self.order, other.order, "Fields MUST have the same order");
         Self::new(self.value + self.order - other.value, self.order)
     }
 
-    /// Multiplication in the field
+    /// Multiplication in the FieldElement
     pub fn multiply(&self, other: &Self) -> Self {
         assert_eq!(self.order, other.order, "Fields MUST have the same order");
         Self::new(self.value * other.value, self.order)
@@ -60,12 +67,12 @@ impl Field {
 
     /// Division (a / b = a * b⁻¹ mod p)
     pub fn divide(&self, b: u32) -> Self {
-        let b_field: Field = Field {
+        let b_field: FieldElement = FieldElement {
             value: b,
             order: self.order,
         };
 
-        let inverse_b: &Field = &Field {
+        let inverse_b: &FieldElement = &FieldElement {
             value: b_field.inverse().value,
             order: b_field.order,
         };
@@ -99,7 +106,7 @@ impl Field {
         result
     }
 
-    /// Negation in the field
+    /// Negation in the FieldElement
     pub fn negate(&self) -> Self {
         Self::new(self.order, self.order).substract(&self)
     }

@@ -1,13 +1,13 @@
 #[path = "math/field.rs"]
-mod field;
+mod field_element;
 
-use field::Field;
+use field_element::FieldElement;
 
 fn main() {
-    let x: Field = Field {
+    let x: FieldElement = FieldElement {
         value: 3,
         order: 14,
     };
-    let y: Field = x.negate().add(&x);
+    let y: FieldElement = x.negate().add(&x);
     println!("{:?}", y);
 }
