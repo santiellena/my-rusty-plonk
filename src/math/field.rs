@@ -100,7 +100,9 @@ impl Field {
     }
 
     /// Negation in the field
-    pub fn negate() {}
+    pub fn negate(&self) -> Self {
+        Self::new(self.order, self.order).substract(&self)
+    }
 
     /// Zero element
     pub fn zero(order: u32) -> Self {

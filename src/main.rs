@@ -5,9 +5,9 @@ use field::Field;
 
 fn main() {
     let x: Field = Field {
-        value: 240,
+        value: 3,
         order: 14,
     };
-
-    println!("{:?}", x.pow(262));
+    let y: Field = x.negate().add(&x);
+    println!("{:?}", y);
 }
