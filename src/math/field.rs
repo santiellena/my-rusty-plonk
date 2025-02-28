@@ -88,7 +88,7 @@ impl FieldElement {
         for n in (0..32).rev() {
             let bin: u32 = (exp >> n) & 1;
             print!("{}", bin);
-            if (fsb_found) {
+            if fsb_found {
                 if bin == 1 {
                     result = result.multiply(&result).multiply(&Self {
                         value: 2,
