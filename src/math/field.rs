@@ -74,7 +74,30 @@ impl Field {
     }
 
     /// Modular exponentiation (a^exp mod p) using fast exponentiation
-    pub fn pow() {}
+    pub fn pow(&self, exp: u32) -> Self {
+        let mut fsb_found: bool = false; // first significant byte found
+        let mut result: Self = self.clone();
+
+        for n in (0..32).rev() {
+            let bin: u32 = (exp >> n) & 1;
+            print!("{}", bin);
+            if (fsb_found) {
+                if bin == 1 {
+                    result = result.multiply(&result).multiply(&Self {
+                        value: 2,
+                        order: self.order,
+                    });
+                } else {
+                    result = result.multiply(&result);
+                }
+            } else if bin == 1 {
+                fsb_found = true;
+            } else {
+                continue;
+            }
+        }
+        result
+    }
 
     /// Negation in the field
     pub fn negate() {}

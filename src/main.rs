@@ -4,7 +4,10 @@ mod field;
 use field::Field;
 
 fn main() {
-    let x: Field = Field { value: 3, order: 7 };
+    let x: Field = Field {
+        value: 240,
+        order: 14,
+    };
 
-    println!("{:?}", x.inverse());
+    println!("{:?}", x.pow(262));
 }
