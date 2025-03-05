@@ -152,6 +152,40 @@ impl Polynomial {
         coeffs[n] = FieldElement::one(order); // 1
         Polynomial::new(coeffs, order)
     }
+
+    /// Resource I recommend to understand Lagrange Interpolation:
+    /// LambdaClass YT video: https://www.youtube.com/watch?v=REnFOKo9gXs
+    ///
+    /// P(x) = ∑_i y_i ⋅ l_i(x)
+    /// where l_i(x)= ∏_j≠i (x−xj)/(xi−xj)
+    #[allow(dead_code)]
+    pub fn lagrange_interpolate(points: &[(FieldElement, FieldElement)], order: u64) -> Self {
+        assert!(!points.is_empty(), "Need at least one point");
+        let mut result = Polynomial::new(vec![], order);
+
+        for (i, &(ref xi, ref yi)) in points.iter().enumerate() {
+            let mut term = Polynomial::new(vec![FieldElement::one(order)], order); // Start with 1
+            let mut denominator = FieldElement::one(order);
+
+            for (j, &(ref xj, _)) in points.iter().enumerate() {
+                if i != j {
+                    // Numerator: (x - xj)
+                    let num =
+                        Polynomial::new(vec![xj.clone().negate(), FieldElement::one(order)], order);
+                    term = term * num;
+                    // Denominator: (xi - xj)
+                    denominator = denominator.multiply(&xi.substract(xj));
+                }
+            }
+
+            let inv_denominator = denominator.inverse();
+            term = term.scalar_mul(inv_denominator);
+            term = term.scalar_mul(yi.clone());
+            result = result + term;
+        }
+
+        result
+    }
 }
 
 impl Add for Polynomial {
@@ -347,5 +381,19 @@ mod tests {
         // Roots at x = 1 and x = -1 (6 mod 7)
         assert_eq!(z.evaluate(FieldElement::new(1, order)).value, 0);
         assert_eq!(z.evaluate(FieldElement::new(6, order)).value, 0);
+    }
+
+    #[test]
+    fn test_lagrange_interpolate() {
+        let order = 7;
+        let points = vec![
+            (FieldElement::new(0, order), FieldElement::new(1, order)),
+            (FieldElement::new(1, order), FieldElement::new(2, order)),
+            (FieldElement::new(2, order), FieldElement::new(4, order)),
+        ];
+        let p = Polynomial::lagrange_interpolate(&points, order);
+        for (x, y) in points {
+            assert_eq!(p.evaluate(x.clone()), y);
+        }
     }
 }
