@@ -128,6 +128,19 @@ impl Polynomial {
             Polynomial::new(dividend, self.order),
         )
     }
+
+    #[allow(dead_code)]
+    pub fn degree(&self) -> usize {
+        if self.coeffs.is_empty()
+            || self
+                .coeffs
+                .iter()
+                .all(|c| c == &FieldElement::zero(self.order))
+        {
+            return 0; // Convention: zero polynomial has degree 0 (or -∞ in some contexts)
+        }
+        self.coeffs.len() - 1
+    }
 }
 
 impl Add for Polynomial {
@@ -289,5 +302,21 @@ mod tests {
             vec![FieldElement::new(3, order), FieldElement::new(3, order)]
         ); // -4 ≡ 3 mod 7
         assert_eq!(r.coeffs, vec![FieldElement::new(2, order)]);
+    }
+
+    #[test]
+    fn test_polynomial_degree() {
+        let order = 7;
+        let p = Polynomial::new(
+            vec![
+                FieldElement::new(1, order),
+                FieldElement::new(2, order),
+                FieldElement::new(3, order),
+            ],
+            order,
+        );
+        assert_eq!(p.degree(), 2);
+        let zero = Polynomial::new(vec![], order);
+        assert_eq!(zero.degree(), 0);
     }
 }
