@@ -7,11 +7,11 @@ use std::ops::{Add, Mul};
 #[derive(Debug, Clone)]
 pub struct Polynomial {
     coeffs: Vec<FieldElement>,
-    order: u32, // so I make sure all field elements have the same order than the expected in the poly
+    order: u64, // so I make sure all field elements have the same order than the expected in the poly
 }
 
 impl Polynomial {
-    fn new(coeffs: Vec<FieldElement>, order: u32) -> Self {
+    fn new(coeffs: Vec<FieldElement>, order: u64) -> Self {
         let mut p = Polynomial {
             coeffs: coeffs
                 .into_iter()

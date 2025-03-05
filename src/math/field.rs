@@ -5,13 +5,13 @@ use std::ops::{Add, AddAssign, Mul};
 
 #[derive(Clone, Debug)]
 pub struct FieldElement {
-    pub value: u32,
-    pub order: u32,
+    pub value: u64,
+    pub order: u64,
 }
 
 impl FieldElement {
     /// Constructor
-    pub fn new(value: u32, order: u32) -> Self {
+    pub fn new(value: u64, order: u64) -> Self {
         Self {
             value: value % order,
             order,
@@ -37,7 +37,7 @@ impl FieldElement {
     }
 
     /// Modular inverse using Extended Euclidean Algorithm
-    fn mod_inverse(&self) -> Option<u32> {
+    fn mod_inverse(&self) -> Option<u64> {
         let (s, gcd) = gcd::ext_gcd(self.value as i32, self.order as i32); // Compute s such that s * a + t * m = gcd(a, m)
 
         if gcd != 1 {
@@ -45,7 +45,7 @@ impl FieldElement {
         }
 
         // Ensure the result is in the range [0, order)
-        Some(((s % self.order as i32 + self.order as i32) % self.order as i32) as u32)
+        Some(((s % self.order as i32 + self.order as i32) % self.order as i32) as u64)
     }
 
     /// Modular inverse (for division)
@@ -61,7 +61,7 @@ impl FieldElement {
     }
 
     /// Division (a / b = a * b⁻¹ mod p)
-    pub fn divide(&self, b: u32) -> Self {
+    pub fn divide(&self, b: u64) -> Self {
         let b_field: FieldElement = FieldElement {
             value: b,
             order: self.order,
@@ -76,12 +76,12 @@ impl FieldElement {
     }
 
     /// Modular exponentiation (a^exp mod p) using fast exponentiation
-    pub fn pow(&self, exp: u32) -> Self {
+    pub fn pow(&self, exp: u64) -> Self {
         let mut fsb_found: bool = false; // first significant byte found
         let mut result: Self = self.clone();
 
         for n in (0..32).rev() {
-            let bin: u32 = (exp >> n) & 1;
+            let bin: u64 = (exp >> n) & 1;
             print!("{}", bin);
             if fsb_found {
                 if bin == 1 {
@@ -107,12 +107,12 @@ impl FieldElement {
     }
 
     /// Zero element
-    pub fn zero(order: u32) -> Self {
+    pub fn zero(order: u64) -> Self {
         Self::new(0, order)
     }
 
     /// One element
-    pub fn one(order: u32) -> Self {
+    pub fn one(order: u64) -> Self {
         Self::new(1, order)
     }
 }
