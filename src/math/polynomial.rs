@@ -141,6 +141,17 @@ impl Polynomial {
         }
         self.coeffs.len() - 1
     }
+
+    /// This vanishing polynomial calculation instead of the classic: ∏(x -y_i)
+    /// is possible because we are working in a cyclic subgroup.
+    /// This way is more efficient.
+    #[allow(dead_code)]
+    pub fn vanishing_polynomial(n: usize, order: u64) -> Self {
+        let mut coeffs = vec![FieldElement::zero(order); n + 1];
+        coeffs[0] = FieldElement::new(1, order).negate(); // -1
+        coeffs[n] = FieldElement::one(order); // 1
+        Polynomial::new(coeffs, order)
+    }
 }
 
 impl Add for Polynomial {
@@ -318,5 +329,23 @@ mod tests {
         assert_eq!(p.degree(), 2);
         let zero = Polynomial::new(vec![], order);
         assert_eq!(zero.degree(), 0);
+    }
+
+    #[test]
+    fn test_vanishing_polynomial() {
+        let order = 7;
+        let n = 2; // x^2 - 1
+        let z = Polynomial::vanishing_polynomial(n, order);
+        assert_eq!(
+            z.coeffs,
+            vec![
+                FieldElement::new(6, order), // -1 ≡ 6 mod 7
+                FieldElement::new(0, order),
+                FieldElement::new(1, order),
+            ]
+        );
+        // Roots at x = 1 and x = -1 (6 mod 7)
+        assert_eq!(z.evaluate(FieldElement::new(1, order)).value, 0);
+        assert_eq!(z.evaluate(FieldElement::new(6, order)).value, 0);
     }
 }
