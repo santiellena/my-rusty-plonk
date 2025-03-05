@@ -38,13 +38,10 @@ impl FieldElement {
 
     /// Modular inverse using Extended Euclidean Algorithm
     fn mod_inverse(&self) -> Option<u64> {
-        let (s, gcd) = gcd::ext_gcd(self.value as i64, self.order as i64); // Compute s such that s * a + t * m = gcd(a, m)
-
+        let (s, _, gcd) = gcd::ext_gcd(self.value as i64, self.order as i64);
         if gcd != 1 {
-            return None; // No modular inverse exists if value and order are not coprime
+            return None;
         }
-
-        // Ensure the result is in the range [0, order)
         Some(((s % self.order as i64 + self.order as i64) % self.order as i64) as u64)
     }
 
@@ -78,7 +75,7 @@ impl FieldElement {
     /// Modular exponentiation (a^exp mod p) using fast exponentiation
     pub fn pow(&self, exp: u64) -> Self {
         if exp == 0 {
-            Self::new(1, self.order)
+            Self::one(self.order)
         } else {
             let mut fsb_found: bool = false; // first significant byte found
             let mut result: Self = self.clone();

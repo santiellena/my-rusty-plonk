@@ -7,7 +7,7 @@
     x
 }*/
 
-pub fn ext_gcd(a: i64, b: i64) -> (i64, i64) {
+pub fn ext_gcd(a: i64, b: i64) -> (i64, i64, i64) {
     let (mut old_r, mut r) = (a, b);
     let (mut old_s, mut s) = (1, 0);
     let (mut old_t, mut t) = (0, 1);
@@ -19,5 +19,5 @@ pub fn ext_gcd(a: i64, b: i64) -> (i64, i64) {
         (old_t, t) = (t, old_t - quotient * t);
     }
 
-    (old_s, old_t)
+    (old_s, old_t, old_r) // Return (s, t, gcd)
 }
