@@ -2,7 +2,13 @@
 mod field_element;
 use field_element::FieldElement;
 
-use std::ops::{Add, Mul};
+use std::ops::{Add, Mul, Sub};
+
+/// Note: A polynomial built with the following coefficients:
+///     [1, 2, 3, 4] will represent y = 1 + 2x + 3x^2 + 4x^3
+///     I want to make this clear because we tend to read polynomials
+///     from the highest degree to the lowest degree, but this implementation
+///     does as shown avobe. Thanks for reading!
 
 #[derive(Debug, Clone)]
 pub struct Polynomial {
@@ -44,6 +50,83 @@ impl Polynomial {
                 acc.multiply(&x).add(coeff.clone())
             })
     }
+
+    #[allow(dead_code)]
+    fn scalar_mul(&self, scalar: FieldElement) -> Self {
+        assert_eq!(scalar.order, self.order, "Scalar must be in the same field");
+        Polynomial {
+            coeffs: self.coeffs.iter().map(|c| c.multiply(&scalar)).collect(),
+            order: self.order,
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn divide(&self, divisor: &Self) -> (Self, Self) {
+        assert_eq!(
+            self.order, divisor.order,
+            "Polynomials must be over the same field"
+        );
+        assert!(
+            !divisor.coeffs.is_empty(),
+            "Cannot divide by zero polynomial"
+        );
+
+        // If divisor is a constant (degree 0), handle scalar division
+        if divisor.coeffs.len() == 1 {
+            let scalar = divisor.coeffs[0].clone();
+            let inv_scalar = scalar.inverse();
+            let quotient_coeffs = self
+                .coeffs
+                .iter()
+                .map(|c| c.multiply(&inv_scalar))
+                .collect();
+            return (
+                Polynomial::new(quotient_coeffs, self.order),
+                Polynomial::new(vec![], self.order), // Remainder is 0
+            );
+        }
+
+        let mut dividend = self.coeffs.clone();
+        let divisor_deg = divisor.coeffs.len() - 1;
+        let divisor_lead = divisor.coeffs.last().unwrap().clone(); // Leading coefficient
+        let inv_divisor_lead = divisor_lead.inverse();
+
+        // If dividend degree < divisor degree, quotient is 0, remainder is dividend
+        if dividend.len() <= divisor_deg {
+            return (
+                Polynomial::new(vec![], self.order),
+                Polynomial::new(dividend, self.order),
+            );
+        }
+
+        let mut quotient = vec![FieldElement::zero(self.order); dividend.len() - divisor_deg];
+        for i in (0..quotient.len()).rev() {
+            let dividend_deg = i + divisor_deg;
+            let term = dividend[dividend_deg].clone().multiply(&inv_divisor_lead);
+            quotient[i] = term.clone();
+
+            // Subtract term * divisor from dividend
+            for j in 0..divisor.coeffs.len() {
+                let prod = divisor.coeffs[j].clone().multiply(&term);
+                dividend[dividend_deg - (divisor_deg - j)] = dividend
+                    [dividend_deg - (divisor_deg - j)]
+                    .clone()
+                    .substract(&prod);
+            }
+        }
+
+        // Trim leading zeros from remainder
+        while dividend.len() > divisor_deg
+            && dividend.last().unwrap() == &FieldElement::zero(self.order)
+        {
+            dividend.pop();
+        }
+
+        (
+            Polynomial::new(quotient, self.order),
+            Polynomial::new(dividend, self.order),
+        )
+    }
 }
 
 impl Add for Polynomial {
@@ -59,16 +142,16 @@ impl Add for Polynomial {
 
         for i in 0..max_len {
             let a = if i < self.coeffs.len() {
-                self.coeffs[i].clone()
+                &self.coeffs[i]
             } else {
-                FieldElement::zero(self.order)
+                &FieldElement::zero(self.order)
             };
             let b = if i < other.coeffs.len() {
                 other.coeffs[i].clone()
             } else {
                 FieldElement::zero(self.order)
             };
-            result.push(a.add(b));
+            result.push(a.add(&b));
         }
 
         Polynomial::new(result, self.order)
@@ -95,6 +178,17 @@ impl Mul for Polynomial {
         }
 
         Polynomial::new(result, self.order)
+    }
+}
+
+impl Sub for Polynomial {
+    type Output = Self;
+    fn sub(self, other: Self) -> Self {
+        let negated = Polynomial {
+            coeffs: other.coeffs.into_iter().map(|c| c.negate()).collect(),
+            order: other.order,
+        };
+        self + negated
     }
 }
 
@@ -150,5 +244,49 @@ mod tests {
         let value = p1.evaluate(FieldElement::new(2, order));
         println!("P1(2) = {:?}", value); // Should be FieldElement { value: 3, order: 7 }
         assert_eq!(value, FieldElement::new(3, order));
+    }
+
+    #[test]
+    fn test_polynomial_add() {
+        let order = 7;
+        let p1 = Polynomial::new(
+            vec![FieldElement::new(1, order), FieldElement::new(2, order)],
+            order,
+        );
+        let p2 = Polynomial::new(
+            vec![FieldElement::new(3, order), FieldElement::new(4, order)],
+            order,
+        );
+        let sum = p1 + p2;
+        assert_eq!(
+            sum.coeffs,
+            vec![FieldElement::new(4, order), FieldElement::new(6, order)]
+        );
+    }
+
+    #[test]
+    fn test_polynomial_divide() {
+        let order = 7;
+        // P(x) = 1 + 2x + 3x^2
+        let p = Polynomial::new(
+            vec![
+                FieldElement::new(1, order),
+                FieldElement::new(2, order),
+                FieldElement::new(3, order),
+            ],
+            order,
+        );
+        // D(x) = 2 + x
+        let d = Polynomial::new(
+            vec![FieldElement::new(2, order), FieldElement::new(1, order)],
+            order,
+        );
+        let (q, r) = p.divide(&d);
+        // Expected: Q(x) = 3x - 4 (3 mod 7), R(x) = 2 (since 3x^2 + 2x + 1 = (x + 2)(3x - 4) + 2)
+        assert_eq!(
+            q.coeffs,
+            vec![FieldElement::new(3, order), FieldElement::new(3, order)]
+        ); // -4 ≡ 3 mod 7
+        assert_eq!(r.coeffs, vec![FieldElement::new(2, order)]);
     }
 }
