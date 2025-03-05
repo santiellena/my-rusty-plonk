@@ -38,14 +38,14 @@ impl FieldElement {
 
     /// Modular inverse using Extended Euclidean Algorithm
     fn mod_inverse(&self) -> Option<u64> {
-        let (s, gcd) = gcd::ext_gcd(self.value as i32, self.order as i32); // Compute s such that s * a + t * m = gcd(a, m)
+        let (s, gcd) = gcd::ext_gcd(self.value as i64, self.order as i64); // Compute s such that s * a + t * m = gcd(a, m)
 
         if gcd != 1 {
             return None; // No modular inverse exists if value and order are not coprime
         }
 
         // Ensure the result is in the range [0, order)
-        Some(((s % self.order as i32 + self.order as i32) % self.order as i32) as u64)
+        Some(((s % self.order as i64 + self.order as i64) % self.order as i64) as u64)
     }
 
     /// Modular inverse (for division)
@@ -80,7 +80,7 @@ impl FieldElement {
         let mut fsb_found: bool = false; // first significant byte found
         let mut result: Self = self.clone();
 
-        for n in (0..32).rev() {
+        for n in (0..64).rev() {
             let bin: u64 = (exp >> n) & 1;
             print!("{}", bin);
             if fsb_found {
