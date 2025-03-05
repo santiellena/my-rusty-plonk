@@ -150,3 +150,19 @@ impl PartialEq for FieldElement {
         self.value == other.value && self.order == other.order
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_negate() {
+        let x: FieldElement = FieldElement {
+            value: 3,
+            order: 14,
+        };
+        let y: FieldElement = x.negate() + x;
+        println!("{:?}", y);
+        assert_eq!(y.value, 0);
+    }
+}

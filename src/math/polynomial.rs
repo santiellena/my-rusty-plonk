@@ -123,13 +123,31 @@ mod tests {
         // Addition: (1 + 2x + 3x^2) + (5 + 4x) = 6 + 6x + 3x^2 (mod 7)
         let sum = p1.clone() + p2.clone();
         println!("Sum: {:?}", sum.coeffs); // Should be [6, 6, 3]
+        assert_eq!(
+            sum.coeffs,
+            vec![
+                FieldElement::new(6, order),
+                FieldElement::new(6, order),
+                FieldElement::new(3, order)
+            ]
+        );
 
         // Multiplication: (1 + 2x + 3x^2)(5 + 4x) = 5 + 14x + 23x^2 + 12x^3 ≡ 5 + 0x + 2x^2 + 5x^3 (mod 7)
         let product = p1.clone() * p2.clone();
         println!("Product: {:?}", product.coeffs); // Should be [5, 0, 2, 5]
+        assert_eq!(
+            product.coeffs,
+            vec![
+                FieldElement::new(5, order),
+                FieldElement::new(0, order),
+                FieldElement::new(2, order),
+                FieldElement::new(5, order)
+            ]
+        );
 
         // Evaluate P1 at x = 2: 1 + 2*2 + 3*4 = 1 + 4 + 12 = 17 ≡ 3 (mod 7)
         let value = p1.evaluate(FieldElement::new(2, order));
         println!("P1(2) = {:?}", value); // Should be FieldElement { value: 3, order: 7 }
+        assert_eq!(value, FieldElement::new(3, order));
     }
 }
