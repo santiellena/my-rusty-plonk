@@ -18,7 +18,7 @@ pub struct Polynomial {
 
 impl Polynomial {
     fn new(coeffs: Vec<FieldElement>, order: u64) -> Self {
-        let mut p = Polynomial {
+        let mut p: Polynomial = Polynomial {
             coeffs: coeffs
                 .into_iter()
                 .map(|c| FieldElement::new(c.value, order))
@@ -73,9 +73,9 @@ impl Polynomial {
 
         // If divisor is a constant (degree 0), handle scalar division
         if divisor.coeffs.len() == 1 {
-            let scalar = divisor.coeffs[0].clone();
-            let inv_scalar = scalar.inverse();
-            let quotient_coeffs = self
+            let scalar: &FieldElement = &divisor.coeffs[0];
+            let inv_scalar: FieldElement = scalar.inverse();
+            let quotient_coeffs: Vec<FieldElement> = self
                 .coeffs
                 .iter()
                 .map(|c| c.multiply(&inv_scalar))
@@ -86,10 +86,10 @@ impl Polynomial {
             );
         }
 
-        let mut dividend = self.coeffs.clone();
-        let divisor_deg = divisor.coeffs.len() - 1;
-        let divisor_lead = divisor.coeffs.last().unwrap().clone(); // Leading coefficient
-        let inv_divisor_lead = divisor_lead.inverse();
+        let mut dividend: Vec<FieldElement> = self.coeffs.clone();
+        let divisor_deg: usize = divisor.coeffs.len() - 1;
+        let divisor_lead: &FieldElement = divisor.coeffs.last().unwrap(); // Leading coefficient
+        let inv_divisor_lead: FieldElement = divisor_lead.inverse();
 
         // If dividend degree < divisor degree, quotient is 0, remainder is dividend
         if dividend.len() <= divisor_deg {
@@ -99,7 +99,8 @@ impl Polynomial {
             );
         }
 
-        let mut quotient = vec![FieldElement::zero(self.order); dividend.len() - divisor_deg];
+        let mut quotient: Vec<FieldElement> =
+            vec![FieldElement::zero(self.order); dividend.len() - divisor_deg];
         for i in (0..quotient.len()).rev() {
             let dividend_deg = i + divisor_deg;
             let term = dividend[dividend_deg].clone().multiply(&inv_divisor_lead);
@@ -107,7 +108,7 @@ impl Polynomial {
 
             // Subtract term * divisor from dividend
             for j in 0..divisor.coeffs.len() {
-                let prod = divisor.coeffs[j].clone().multiply(&term);
+                let prod: FieldElement = divisor.coeffs[j].clone().multiply(&term);
                 dividend[dividend_deg - (divisor_deg - j)] = dividend
                     [dividend_deg - (divisor_deg - j)]
                     .clone()
@@ -137,21 +138,21 @@ impl Add for Polynomial {
             self.order, other.order,
             "Polynomials must be over the same field"
         );
-        let max_len = self.coeffs.len().max(other.coeffs.len());
-        let mut result = Vec::with_capacity(max_len);
+        let max_len: usize = self.coeffs.len().max(other.coeffs.len());
+        let mut result: Vec<FieldElement> = Vec::with_capacity(max_len);
 
         for i in 0..max_len {
-            let a = if i < self.coeffs.len() {
+            let a: &FieldElement = if i < self.coeffs.len() {
                 &self.coeffs[i]
             } else {
                 &FieldElement::zero(self.order)
             };
-            let b = if i < other.coeffs.len() {
-                other.coeffs[i].clone()
+            let b: &FieldElement = if i < other.coeffs.len() {
+                &other.coeffs[i]
             } else {
-                FieldElement::zero(self.order)
+                &FieldElement::zero(self.order)
             };
-            result.push(a.add(&b));
+            result.push(a.add(b));
         }
 
         Polynomial::new(result, self.order)
@@ -168,11 +169,11 @@ impl Mul for Polynomial {
         );
         let n = self.coeffs.len();
         let m = other.coeffs.len();
-        let mut result = vec![FieldElement::zero(self.order); n + m - 1];
+        let mut result: Vec<FieldElement> = vec![FieldElement::zero(self.order); n + m - 1];
 
         for i in 0..n {
             for j in 0..m {
-                let prod = self.coeffs[i].clone().multiply(&other.coeffs[j]);
+                let prod: FieldElement = self.coeffs[i].clone().multiply(&other.coeffs[j]);
                 result[i + j] = result[i + j].clone().add(prod);
             }
         }
@@ -184,7 +185,7 @@ impl Mul for Polynomial {
 impl Sub for Polynomial {
     type Output = Self;
     fn sub(self, other: Self) -> Self {
-        let negated = Polynomial {
+        let negated: Polynomial = Polynomial {
             coeffs: other.coeffs.into_iter().map(|c| c.negate()).collect(),
             order: other.order,
         };
