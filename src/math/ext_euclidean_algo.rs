@@ -7,7 +7,7 @@
     x
 }*/
 
-pub fn ext_gcd(a: i32, b: i32) -> (i32, i32) {
+pub fn ext_gcd(a: i64, b: i64) -> (i64, i64) {
     let (mut old_r, mut r) = (a, b);
     let (mut old_s, mut s) = (1, 0);
     let (mut old_t, mut t) = (0, 1);
