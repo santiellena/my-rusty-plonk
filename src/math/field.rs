@@ -1,17 +1,12 @@
 #[path = "ext_euclidean_algo.rs"]
 mod gcd;
 
+use std::ops::{Add, AddAssign, Mul};
+
 #[derive(Clone, Debug)]
 pub struct FieldElement {
     pub value: u32,
     pub order: u32,
-}
-
-// use PartialEq trait to check whether two fields are equal or not
-impl PartialEq for FieldElement {
-    fn eq(&self, other: &FieldElement) -> bool {
-        self.value == other.value && self.order == other.order
-    }
 }
 
 impl FieldElement {
@@ -119,5 +114,39 @@ impl FieldElement {
     /// One element
     pub fn one(order: u32) -> Self {
         Self::new(1, order)
+    }
+}
+
+/// Implementations to facilitate writing the code in polynomials
+impl Add for FieldElement {
+    type Output = Self;
+    fn add(self, other: Self) -> Self {
+        Self::add(&self, &other)
+    }
+}
+
+impl Mul for FieldElement {
+    type Output = Self;
+    fn mul(self, other: Self) -> Self {
+        self.multiply(&other)
+    }
+}
+
+impl Default for FieldElement {
+    fn default() -> Self {
+        Self::zero(0)
+    }
+}
+
+impl AddAssign for FieldElement {
+    fn add_assign(&mut self, other: Self) {
+        *self = Self::add(&self, &other);
+    }
+}
+
+// use PartialEq trait to check whether two fields are equal or not
+impl PartialEq for FieldElement {
+    fn eq(&self, other: &FieldElement) -> bool {
+        self.value == other.value && self.order == other.order
     }
 }
