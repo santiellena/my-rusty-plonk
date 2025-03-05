@@ -25,6 +25,7 @@ impl FieldElement {
     }
 
     /// Subtraction in the FieldElement
+    #[allow(dead_code)]
     pub fn substract(&self, other: &Self) -> Self {
         assert_eq!(self.order, other.order, "Fields MUST have the same order");
         Self::new(self.value + self.order - other.value, self.order)
@@ -37,6 +38,7 @@ impl FieldElement {
     }
 
     /// Modular inverse using Extended Euclidean Algorithm
+    #[allow(dead_code)]
     fn mod_inverse(&self) -> Option<u64> {
         let (s, _, gcd) = gcd::ext_gcd(self.value as i64, self.order as i64);
         if gcd != 1 {
@@ -46,6 +48,7 @@ impl FieldElement {
     }
 
     /// Modular inverse (for division)
+    #[allow(dead_code)]
     pub fn inverse(&self) -> Self {
         if let Some(inv) = self.mod_inverse() {
             Self {
@@ -58,6 +61,7 @@ impl FieldElement {
     }
 
     /// Division (a / b = a * b⁻¹ mod p)
+    #[allow(dead_code)]
     pub fn divide(&self, b: u64) -> Self {
         let b_field: FieldElement = FieldElement {
             value: b,
@@ -73,6 +77,7 @@ impl FieldElement {
     }
 
     /// Modular exponentiation (a^exp mod p) using fast exponentiation
+    #[allow(dead_code)]
     pub fn pow(&self, exp: u64) -> Self {
         if exp == 0 {
             Self::one(self.order)
@@ -102,6 +107,7 @@ impl FieldElement {
     }
 
     /// Negation in the FieldElement
+    #[allow(dead_code)]
     pub fn negate(&self) -> Self {
         Self::new(self.order, self.order).substract(&self)
     }

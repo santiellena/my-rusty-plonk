@@ -31,6 +31,7 @@ impl Polynomial {
         }
     }
 
+    #[allow(dead_code)]
     fn evaluate(&self, x: FieldElement) -> FieldElement {
         assert_eq!(
             x.order, self.order,
