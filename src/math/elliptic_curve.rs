@@ -89,7 +89,13 @@ impl std::ops::Add for Point {
                     let num = x1
                         .multiply(&x1)
                         .multiply(&FieldElement::new(3, curve_order))
-                        .add(FieldElement::zero(curve_order)); // Assuming a=0 for simplicity; adjust later
+                        .add(FieldElement::zero(curve_order));
+                    // Assuming a=0 for simplicity;
+                    // Explanation on previous a=0: most used Plonk curves has a=0 and current setup doesn't allow us to access
+                    // the Elliptic Curve data of the points. An option here will be creating a custom add function that
+                    // receives the elliptic curve in which the points being added belong to. However, I prefer this solution
+                    // because I want to use the sintactic sugar this option provides, and for the curves I'll be integrating this
+                    // Point structure, it will be more than useful.
                     let denom = y1.multiply(&FieldElement::new(2, curve_order));
                     num.divide(denom.value)
                 } else {
