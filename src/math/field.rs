@@ -1,7 +1,7 @@
 #[path = "ext_euclidean_algo.rs"]
 mod gcd;
 
-use std::ops::{Add, AddAssign, Mul};
+use std::ops::{Add, AddAssign, Div, Mul};
 
 #[derive(Clone, Debug)]
 pub struct FieldElement {
@@ -62,18 +62,13 @@ impl FieldElement {
 
     /// Division (a / b = a * b⁻¹ mod p)
     #[allow(dead_code)]
-    pub fn divide(&self, b: u64) -> Self {
-        let b_field: FieldElement = FieldElement {
-            value: b,
-            order: self.order,
+    pub fn divide(&self, other: &Self) -> Self {
+        let inverse_other: &FieldElement = &FieldElement {
+            value: other.inverse().value,
+            order: other.order,
         };
 
-        let inverse_b: &FieldElement = &FieldElement {
-            value: b_field.inverse().value,
-            order: b_field.order,
-        };
-
-        self.multiply(inverse_b)
+        self.multiply(inverse_other)
     }
 
     /// Modular exponentiation (a^exp mod p) using fast exponentiation
@@ -89,10 +84,7 @@ impl FieldElement {
                 let bin: u64 = (exp >> n) & 1;
                 if fsb_found {
                     if bin == 1 {
-                        result = result.multiply(&result).multiply(&Self {
-                            value: 2,
-                            order: self.order,
-                        });
+                        result = result.multiply(&result).multiply(&self);
                     } else {
                         result = result.multiply(&result);
                     }
@@ -154,6 +146,13 @@ impl AddAssign for FieldElement {
 impl PartialEq for FieldElement {
     fn eq(&self, other: &FieldElement) -> bool {
         self.value == other.value && self.order == other.order
+    }
+}
+
+impl Div for FieldElement {
+    type Output = Self;
+    fn div(self, other: Self) -> Self {
+        self.divide(&other)
     }
 }
 
@@ -231,6 +230,11 @@ mod tests {
         let pow_2 = a.pow(2);
         assert_eq!(pow_2.value, 2);
         assert_eq!(pow_2, a.multiply(&a));
+
+        // Test 4: a^3 = a * a * a
+        let pow_3 = a.pow(3);
+        assert_eq!(pow_3.value, 6);
+        assert_eq!(pow_3, a.clone() * a.clone() * a.clone());
     }
 
     #[test]
