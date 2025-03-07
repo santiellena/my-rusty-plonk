@@ -1,4 +1,7 @@
-use std::fmt;
+#[path = "./field.rs"]
+mod field;
+
+use field::FieldElement;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct EllipticCurve {
@@ -27,25 +30,21 @@ impl PartialEq for Point {
 impl EllipticCurve {
     pub fn new(a: FieldElement, b: FieldElement) -> Self {
         assert_eq!(a.order, b.order, "Coefficients must be in the same field");
-        let sixteen: FieldElement = FieldElement::new(16, a.order);
+        let order: u64 = a.order;
+        let sixteen: FieldElement = FieldElement::new(16, order);
         let neg_sixteen: FieldElement = sixteen.negate();
-        let twenty_seven: FieldElement = FieldElement::new(27, a.order);
-        let four: FieldElement = FieldElement::new(4, a.order);
+        let twenty_seven: FieldElement = FieldElement::new(27, order);
+        let four: FieldElement = FieldElement::new(4, order);
 
         let discriminant: FieldElement =
             neg_sixteen * ((four * a.pow(3)) + (twenty_seven * b.pow(2)));
 
-        assert_not_eq!(
-            discriminant,
-            FieldElement::zero(),
+        assert!(
+            discriminant != FieldElement::zero(order),
             "Must be a valid elliptic curve"
         );
 
-        EllipticCurve {
-            a,
-            b,
-            order: a.order,
-        }
+        EllipticCurve { a, b, order }
     }
 
     pub fn point(&self, x: FieldElement, y: FieldElement) -> Point {
@@ -90,7 +89,7 @@ impl std::ops::Add for Point {
                     let num = x1
                         .multiply(&x1)
                         .multiply(&FieldElement::new(3, curve_order))
-                        .add(&FieldElement::new(0, curve_order)); // Assuming a=0 for simplicity; adjust later
+                        .add(FieldElement::zero(curve_order)); // Assuming a=0 for simplicity; adjust later
                     let denom = y1.multiply(&FieldElement::new(2, curve_order));
                     num.divide(denom.value)
                 } else {

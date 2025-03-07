@@ -1,6 +1,7 @@
 #[path = "math/polynomial.rs"]
 mod polynomial;
-#[allow(unused_imports)]
-use polynomial::Polynomial;
+
+#[path = "math/elliptic_curve.rs"]
+mod elliptic_curve;
 
 fn main() {}
