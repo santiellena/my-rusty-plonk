@@ -1,7 +1,7 @@
-#[path = "math/polynomial.rs"]
+#[path = "my_math/polynomial.rs"]
 mod polynomial;
 
-#[path = "math/elliptic_curve.rs"]
+#[path = "my_math/elliptic_curve.rs"]
 mod elliptic_curve;
 
 fn main() {}
