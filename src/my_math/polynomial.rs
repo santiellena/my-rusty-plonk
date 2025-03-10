@@ -1,6 +1,4 @@
-#[path = "./field.rs"]
-mod field_element;
-use field_element::FieldElement;
+use crate::own_field::FieldElement;
 
 use std::ops::{Add, Mul, Sub};
 

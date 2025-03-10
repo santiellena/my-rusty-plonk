@@ -1,5 +1,4 @@
-#[path = "ext_euclidean_algo.rs"]
-mod gcd;
+use crate::gcd;
 
 use std::ops::{Add, AddAssign, Div, Mul};
 

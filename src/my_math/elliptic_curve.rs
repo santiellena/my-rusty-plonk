@@ -1,7 +1,4 @@
-#[path = "./field.rs"]
-mod field;
-
-use field::FieldElement;
+use crate::own_field::FieldElement;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct EllipticCurve {
