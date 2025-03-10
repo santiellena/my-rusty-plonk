@@ -3,7 +3,7 @@ use ark_ff::{Field, PrimeField};
 use std::fmt;
 use std::ops::{Add, Div, Mul, Sub};
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Copy)]
 pub struct FieldElement(Fr);
 
 impl FieldElement {
