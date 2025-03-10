@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-ark-ff = "0.4.2"    # Finite field arithmetic
-ark-ec = "0.4.2"    # Elliptic Curve ops
-ark-bn254 = "0.5.0" # BN254 curve (128 security bits) specifics
-ark-std = "0.5.0"   # Utilities for testing
+ark-ff = "0.4.0"    # Finite field arithmetic
+ark-ec = "0.4.0"    # Elliptic Curve ops
+ark-bn254 = "0.4.0" # BN254 curve specifics
+ark-std = "0.4.0"   # Utilities for testing
