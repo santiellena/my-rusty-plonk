@@ -14,8 +14,8 @@ pub struct EllipticCurve {
        Well, FieldElement is just a wrapper of ark-fr::Fr type. This type accepts
        values from 0-Fr::MODULUS, non-inclusive. Storing the curve order could be
        helpful for testing properties like the curve order times (scalar multiplication)
-       the generator is zero.
-                               [r]G = 0
+       the generator is the point at infinity (identity).
+                               [r]G = O
     */
 }
 
