@@ -2,7 +2,7 @@
 mod own_polynomial;
 
 #[path = "my_math/elliptic_curve.rs"]
-mod elliptic_curve;
+mod own_elliptic_curve;
 
 #[path = "my_math/field.rs"]
 mod own_field;
@@ -15,5 +15,8 @@ mod field;
 
 #[path = "math_with_ark/polynomial.rs"]
 mod polynomial;
+
+#[path = "math_with_ark/elliptic_curve.rs"]
+mod elliptic_curve;
 
 fn main() {}

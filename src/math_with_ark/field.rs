@@ -1,15 +1,31 @@
 use ark_bn254::Fr;
-use ark_ff::{Field, PrimeField};
+use ark_ff::{BigInteger256, Field, PrimeField};
 use std::fmt;
-use std::ops::{Add, Div, Mul, Sub};
+use std::ops::{Add, Div, Mul, Sub}; // Ensure BigInteger256 is imported
 
 #[derive(Clone, PartialEq, Copy)]
-pub struct FieldElement(Fr);
+pub struct FieldElement(pub Fr);
 
 impl FieldElement {
     #[allow(dead_code)]
     pub fn new(value: u64) -> Self {
+        println!("new: fr = {:?}", Fr::from(value));
         FieldElement(Fr::from(value))
+    }
+
+    #[allow(dead_code)]
+    pub fn new_bigint(value: BigInteger256) -> Self {
+        FieldElement(Fr::from(value))
+    }
+
+    #[allow(dead_code)]
+    pub fn from_fr(fr: Fr) -> Self {
+        FieldElement(fr)
+    }
+
+    #[allow(dead_code)]
+    pub fn value(&self) -> Fr {
+        self.0
     }
 
     #[allow(dead_code)]
