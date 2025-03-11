@@ -7,6 +7,7 @@ pub struct EllipticCurve {
     b: FieldElement,  // Coefficient b
     field_order: u64, // p
     curve_order: u64, // n (number of points)
+    generator: Point,
 }
 
 #[derive(Clone, Debug)]
@@ -27,7 +28,7 @@ impl PartialEq for Point {
 
 impl EllipticCurve {
     #[allow(dead_code)]
-    pub fn new(a: FieldElement, b: FieldElement, curve_order: u64) -> Self {
+    pub fn new(a: FieldElement, b: FieldElement, curve_order: u64, generator: Point) -> Self {
         assert_eq!(a.order, b.order, "Coefficients must be in the same field");
         let field_order: u64 = a.order;
         let sixteen: FieldElement = FieldElement::new(16, field_order);
@@ -48,6 +49,7 @@ impl EllipticCurve {
             b,
             field_order,
             curve_order,
+            generator,
         }
     }
 
@@ -151,7 +153,12 @@ mod tests {
     #[test]
     fn test_point_addition() {
         let order = 17;
-        let curve = EllipticCurve::new(FieldElement::zero(order), FieldElement::new(7, order), 16);
+        let curve = EllipticCurve::new(
+            FieldElement::zero(order),
+            FieldElement::new(7, order),
+            16,
+            Point::Affine(FieldElement::zero(order), FieldElement::zero(order)), // doesn't matter the generator for testing
+        );
         let p1 = curve.point(FieldElement::new(3, order), FieldElement::new(0, order));
         let p2 = curve.point(FieldElement::new(8, order), FieldElement::new(3, order));
         let sum = p1 + p2;
@@ -166,8 +173,12 @@ mod tests {
     #[test]
     fn test_scalar_mul() {
         let order = 17;
-        let curve =
-            EllipticCurve::new(FieldElement::new(0, order), FieldElement::new(7, order), 16);
+        let curve = EllipticCurve::new(
+            FieldElement::new(0, order),
+            FieldElement::new(7, order),
+            16,
+            Point::Affine(FieldElement::zero(order), FieldElement::zero(order)), // doesn't matter the generator for testing
+        );
         let p = curve.point(FieldElement::new(8, order), FieldElement::new(3, order));
         let result = p.scalar_mul(FieldElement::new(2, order), &curve);
         if let Point::Affine(x, y) = result {
