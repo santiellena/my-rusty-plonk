@@ -1,14 +1,21 @@
+/// MY OWN MATH MODULES
+
 #[path = "my_math/polynomial.rs"]
-mod own_polynomial;
+mod my_polynomial;
 
 #[path = "my_math/elliptic_curve.rs"]
-mod own_elliptic_curve;
+mod my_elliptic_curve;
 
 #[path = "my_math/field.rs"]
-mod own_field;
+mod my_field;
 
 #[path = "my_math/ext_euclidean_algo.rs"]
 mod gcd;
+
+#[path = "my_math/kzg.rs"]
+mod my_kzg;
+
+/// MATH WITH ARKWORKS MODULES
 
 #[path = "math_with_ark/field.rs"]
 mod field;

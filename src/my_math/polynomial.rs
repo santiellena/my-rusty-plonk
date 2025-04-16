@@ -1,4 +1,4 @@
-use crate::own_field::FieldElement;
+use crate::my_field::FieldElement;
 
 use std::ops::{Add, Mul, Sub};
 
