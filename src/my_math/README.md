@@ -14,5 +14,8 @@ Some resources that could be helpful to get this whole thing:
 - [The Discrete Logarithm Problem by Khan Academy](https://youtu.be/SL7J8hPKEWY?si=01cU525dzrjXvU9r)
 - [Euclidean Division by LambdaClass](https://www.youtube.com/watch?v=5W4ghK7dWuI&t=1s)
 - [Lagrange Interpolation by LambdaClass](https://www.youtube.com/watch?v=REnFOKo9gXs)
+- [Exploring Elliptic Curve Pairings by Vitalik Buterin](https://medium.com/@VitalikButerin/exploring-elliptic-curve-pairings-c73c1864e627)
+- [Ethereum Foundation bn128 Field Elements Implementation](https://github.com/ethereum/py_pairing/blob/master/py_ecc/bn128/bn128_field_elements.py)
+- [Plonk By Hand Series](https://research.metastate.dev/plonk-by-hand-part-1/). Special love for this one ❤.
 
 For the real and useful Plonk, see [this folder](../math_with_ark/). There you will find the Plonk specific resources! However, getting the math from here, is a pre-requisite, so do your homework first!

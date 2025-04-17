@@ -147,8 +147,8 @@ impl Div for FieldElement {
 */
 #[derive(Clone, Debug, PartialEq)]
 pub struct FieldElementExt {
-    a: FieldElement, // Real part
-    b: FieldElement, // Imaginary part (coefficient of u)
+    pub a: FieldElement, // Real part
+    pub b: FieldElement, // Imaginary part (coefficient of u)
 }
 
 impl FieldElementExt {
@@ -166,7 +166,7 @@ impl FieldElementExt {
     }
 
     #[allow(dead_code)]
-    pub fn sub(&self, other: &Self) -> Self {
+    pub fn substract(&self, other: &Self) -> Self {
         FieldElementExt {
             a: self.a.substract(&other.a),
             b: self.b.substract(&other.b),
@@ -174,7 +174,7 @@ impl FieldElementExt {
     }
 
     #[allow(dead_code)]
-    pub fn mul(&self, other: &Self) -> Self {
+    pub fn multiply(&self, other: &Self) -> Self {
         // (a + bu)(c + du) = (ac + bd u^2) + (ad + bc)u
         // u^2 = -2, so bd u^2 = bd(-2)
         let ac = self.a.multiply(&other.a);
@@ -317,7 +317,7 @@ mod tests_ext {
         let sum = a.add(&b);
         assert_eq!(sum.a.value, 80); // 50 + 30
         assert_eq!(sum.b.value, 100); // 60 + 40
-        let prod = a.mul(&b);
+        let prod = a.multiply(&b);
         // (50 + 60u)(30 + 40u) = 1500 + 2000u + 1800u + 2400u^2
         // = (86 + 77(99) + (81 + 83)u (mod 101)
         // = (86 + 48) + 63u = 33 + 63u (mod 101)

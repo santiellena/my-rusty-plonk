@@ -1,135 +1,208 @@
-use crate::my_field::FieldElement;
+use crate::my_field::{FieldElement, FieldElementExt};
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct EllipticCurve {
-    // y^2 = x^3 + ax + b
-    a: FieldElement,  // Coefficient a
-    b: FieldElement,  // Coefficient b
-    curve_order: u64, // n (number of points)
-    generator: Point,
+pub struct Point {
+    x: FieldElement,
+    y: FieldElement,
+    is_infinity: bool,
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct PointExt {
+    x: FieldElementExt,
+    y: FieldElementExt,
+    is_infinity: bool,
+}
+
+#[allow(dead_code)]
 #[derive(Clone, Debug)]
-pub enum Point {
-    Infinity,                           // Point at infinity (identity)
-    Affine(FieldElement, FieldElement), // (x, y)
-}
-
-impl PartialEq for Point {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Point::Infinity, Point::Infinity) => true,
-            (Point::Affine(x1, y1), Point::Affine(x2, y2)) => x1 == x2 && y1 == y2,
-            _ => false,
-        }
-    }
-}
-
-impl EllipticCurve {
-    #[allow(dead_code)]
-    pub fn new(a: FieldElement, b: FieldElement, curve_order: u64, generator: Point) -> Self {
-        let sixteen: FieldElement = FieldElement::new(16);
-        let neg_sixteen: FieldElement = sixteen.negate();
-        let twenty_seven: FieldElement = FieldElement::new(27);
-        let four: FieldElement = FieldElement::new(4);
-
-        let discriminant: FieldElement =
-            neg_sixteen * ((four * a.pow(3)).add(&twenty_seven.multiply(&b.pow(2))));
-
-        assert!(
-            discriminant != FieldElement::zero(),
-            "Must be a valid elliptic curve"
-        );
-
-        EllipticCurve {
-            a,
-            b,
-            curve_order,
-            generator,
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn point(&self, x: FieldElement, y: FieldElement) -> Point {
-        // Verify point is on curve: y^2 = x^3 + ax + b
-        let lhs = y.pow(2);
-        let rhs = (x.pow(3)).add(&self.a.multiply(&x)).add(&self.b.clone());
-        assert_eq!(lhs, rhs, "Point ({:?}, {:?}) not on curve", x, y);
-        Point::Affine(x, y)
-    }
-
-    #[allow(dead_code)]
-    pub fn infinity(&self) -> Point {
-        Point::Infinity
-    }
-}
-
-impl std::ops::Add for Point {
-    type Output = Self;
-
-    fn add(self, other: Self) -> Self {
-        match (self, other) {
-            (Point::Infinity, p) => p,
-            (p, Point::Infinity) => p,
-            (Point::Affine(x1, y1), Point::Affine(x2, y2)) => {
-                // Check if P = -Q
-                if x1 == x2 && y1 == y2.negate() {
-                    return Point::Infinity;
-                }
-
-                let lambda = if x1 == x2 && y1 == y2 {
-                    // Doubling: λ = (3x₁² + a) / (2y₁)
-                    let num = (x1.multiply(&x1) * FieldElement::new(3)).add(&FieldElement::zero());
-                    // Assuming a=0 for simplicity;
-                    // Explanation on previous a=0: most used Plonk curves has a=0 and current setup doesn't allow us to access
-                    // the Elliptic Curve data of the points. An option here will be creating a custom add function that
-                    // receives the elliptic curve in which the points being added belong to. However, I prefer this solution
-                    // because I want to use the sintactic sugar this option provides, and for the curves I'll be integrating this
-                    // Point structure, it will be more than useful.
-                    let denom = y1.clone() * FieldElement::new(2);
-                    num / denom
-                } else {
-                    // Addition: λ = (y₂ - y₁) / (x₂ - x₁)
-                    let num = y2.substract(&y1);
-                    let denom = x2.substract(&x1);
-                    num / denom
-                };
-
-                let x3 = lambda.multiply(&lambda).substract(&x1).substract(&x2);
-                let y3 = lambda.multiply(&x1.substract(&x3)).substract(&y1);
-                Point::Affine(x3, y3)
-            }
-        }
-    }
+pub struct EllipticCurve {
+    a: FieldElement,
+    b: FieldElement,
+    g1: Point,    // Generator for G1
+    g2: PointExt, // Generator for G2
+    order: u64,   // Subgroup order
 }
 
 impl Point {
     #[allow(dead_code)]
-    pub fn scalar_mul(&self, scalar: FieldElement, curve: &EllipticCurve) -> Self {
-        if let Point::Infinity = self {
-            return Point::Infinity;
+    pub fn infinity() -> Self {
+        Point {
+            x: FieldElement::new(0),
+            y: FieldElement::new(0),
+            is_infinity: true,
         }
-        let Point::Affine(_x, _y) = self else {
-            unreachable!()
-        };
-        let mut result = Point::Infinity;
-        let mut base = self.clone();
-        let mut exp = scalar.value % curve.curve_order; // Modulo curve order
+    }
 
-        while exp > 0 {
-            if exp & 1 == 1 {
-                result = result + base.clone();
+    #[allow(dead_code)]
+    pub fn scalar_mul(&self, curve: &EllipticCurve, scalar: FieldElement) -> Point {
+        let mut result = Point::infinity();
+        let mut temp = self.clone();
+        let mut s = scalar.value;
+        while s > 0 {
+            if s & 1 == 1 {
+                result = curve.add(&result, &temp);
             }
-            base = base.clone() + base.clone();
-            exp >>= 1;
+            temp = curve.add(&temp, &temp);
+            s >>= 1;
         }
         result
     }
 }
 
+impl PointExt {
+    #[allow(dead_code)]
+    pub fn infinity() -> Self {
+        PointExt {
+            x: FieldElementExt::new(FieldElement::zero(), FieldElement::zero()),
+            y: FieldElementExt::new(FieldElement::zero(), FieldElement::zero()),
+            is_infinity: true,
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn scalar_mul(&self, curve: &EllipticCurve, scalar: FieldElement) -> PointExt {
+        let mut result = PointExt::infinity();
+        let mut temp = self.clone();
+        let mut s = scalar.value;
+        while s > 0 {
+            if s & 1 == 1 {
+                result = curve.add_ext(&result, &temp);
+            }
+            temp = curve.add_ext(&temp, &temp);
+            s >>= 1;
+        }
+        result
+    }
+}
+
+impl EllipticCurve {
+    #[allow(dead_code)]
+    pub fn new() -> Self {
+        let a = FieldElement::new(0); // y^2 = x^3 + 0x + 3
+        let b = FieldElement::new(3);
+        let g1 = Point {
+            x: FieldElement::new(1),
+            y: FieldElement::new(2),
+            is_infinity: false,
+        };
+        let g2 = PointExt {
+            x: FieldElementExt::new(FieldElement::new(36), FieldElement::zero()),
+            y: FieldElementExt::new(FieldElement::zero(), FieldElement::new(31)), // 31u
+            is_infinity: false,
+        };
+        EllipticCurve {
+            a,
+            b,
+            g1,
+            g2,
+            order: 17, // there are 17 valid points generated from (1, 2)
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn generator_g1(&self) -> Point {
+        self.g1.clone()
+    }
+
+    #[allow(dead_code)]
+    pub fn generator_g2(&self) -> PointExt {
+        self.g2.clone()
+    }
+
+    #[allow(dead_code)]
+    pub fn infinity(&self) -> Point {
+        Point::infinity()
+    }
+
+    #[allow(dead_code)]
+    pub fn infinity_ext(&self) -> PointExt {
+        PointExt::infinity()
+    }
+
+    pub fn add(&self, p1: &Point, p2: &Point) -> Point {
+        if p1.is_infinity {
+            return p2.clone();
+        }
+        if p2.is_infinity {
+            return p1.clone();
+        }
+        if p1.x == p2.x && p1.y != p2.y {
+            return Point::infinity();
+        }
+
+        let m: FieldElement = if p1 == p2 {
+            let num: FieldElement =
+                p1.x.multiply(&p1.x)
+                    .multiply(&FieldElement::new(3))
+                    .add(&self.a);
+            let den = p1.y.multiply(&FieldElement::new(2));
+            num.divide(&den)
+        } else {
+            let num: FieldElement = p2.y.substract(&p1.y);
+            let den: FieldElement = p2.x.substract(&p1.x);
+            num.divide(&den)
+        };
+
+        let x3: FieldElement = m.multiply(&m).substract(&p1.x).substract(&p2.x);
+        let y3: FieldElement = m.multiply(&p1.x.substract(&x3)).substract(&p1.y);
+        Point {
+            x: x3,
+            y: y3,
+            is_infinity: false,
+        }
+    }
+
+    pub fn add_ext(&self, p1: &PointExt, p2: &PointExt) -> PointExt {
+        if p1.is_infinity {
+            return p2.clone();
+        }
+        if p2.is_infinity {
+            return p1.clone();
+        }
+        if p1.x == p2.x && p1.y != p2.y {
+            return PointExt::infinity();
+        }
+
+        let m = if p1 == p2 {
+            let num =
+                p1.x.multiply(&p1.x)
+                    .multiply(&FieldElementExt::new(
+                        FieldElement::new(3),
+                        FieldElement::zero(),
+                    ))
+                    .add(&FieldElementExt::new(self.a.clone(), FieldElement::zero()));
+            let den = p1.y.multiply(&FieldElementExt::new(
+                FieldElement::new(2),
+                FieldElement::zero(),
+            ));
+            // Simplified: This needs proper division in F_101^2
+            let m_num = num.a; // Toy approximation
+            let m_den = den.a;
+            let m_field = m_num.divide(&m_den);
+            FieldElementExt::new(m_field, FieldElement::zero())
+        } else {
+            let num = p1.y.substract(&p2.y);
+            let den = p1.x.substract(&p2.x);
+            let m_num = num.a;
+            let m_den = den.a;
+            let m_field = m_num.divide(&m_den);
+            FieldElementExt::new(m_field, FieldElement::zero())
+        };
+
+        let x3 = m.multiply(&m).substract(&p1.x).substract(&p2.x);
+        let y3 = m.multiply(&p1.x.substract(&x3)).substract(&p1.y);
+        PointExt {
+            x: x3,
+            y: y3,
+            is_infinity: false,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    //use super::*;
+    use super::*;
     /* These two tests will be later manually calculated as they change with the EC
     #[test]
     fn test_point_addition() {
@@ -168,4 +241,13 @@ mod tests {
         }
     }
     */
+
+    #[test]
+    fn test_curve_order() {
+        let curve = EllipticCurve::new();
+        let g1 = curve.generator_g1();
+        let order = FieldElement::new(curve.order);
+        let result = g1.scalar_mul(&curve, order);
+        assert_eq!(result, Point::infinity());
+    }
 }
