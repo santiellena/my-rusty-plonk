@@ -8,3 +8,4 @@ ark-ff = "0.4.0"    # Finite field arithmetic
 ark-ec = "0.4.0"    # Elliptic Curve ops
 ark-bn254 = "0.4.0" # BN254 curve specifics
 ark-std = "0.4.0"   # Utilities for testing
+rand = "0.8"

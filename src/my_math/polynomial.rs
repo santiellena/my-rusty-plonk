@@ -10,11 +10,11 @@ use std::ops::{Add, Mul, Sub};
 
 #[derive(Debug, Clone)]
 pub struct Polynomial {
-    coeffs: Vec<FieldElement>,
+    pub coeffs: Vec<FieldElement>,
 }
 
 impl Polynomial {
-    fn new(coeffs: Vec<FieldElement>) -> Self {
+    pub fn new(coeffs: Vec<FieldElement>) -> Self {
         let mut p: Polynomial = Polynomial {
             coeffs: coeffs
                 .into_iter()
@@ -32,7 +32,7 @@ impl Polynomial {
     }
 
     #[allow(dead_code)]
-    fn evaluate(&self, x: FieldElement) -> FieldElement {
+    pub fn evaluate(&self, x: FieldElement) -> FieldElement {
         self.coeffs
             .iter()
             .rev()

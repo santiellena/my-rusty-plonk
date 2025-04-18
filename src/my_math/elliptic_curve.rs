@@ -2,16 +2,16 @@ use crate::my_field::{FieldElement, FieldElementExt};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Point {
-    x: FieldElement,
-    y: FieldElement,
-    is_infinity: bool,
+    pub x: FieldElement,
+    pub y: FieldElement,
+    pub is_infinity: bool,
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct PointExt {
-    x: FieldElementExt,
-    y: FieldElementExt,
-    is_infinity: bool,
+    pub x: FieldElementExt,
+    pub y: FieldElementExt,
+    pub is_infinity: bool,
 }
 
 #[allow(dead_code)]
@@ -249,5 +249,20 @@ mod tests {
         let order = FieldElement::new(curve.order);
         let result = g1.scalar_mul(&curve, order);
         assert_eq!(result, Point::infinity());
+    }
+
+    #[test]
+    fn test_double_g1() {
+        let curve = EllipticCurve::new();
+        let g1 = curve.generator_g1(); // (1, 2)
+        let double_g1 = curve.add(&g1, &g1);
+        assert_eq!(
+            double_g1,
+            Point {
+                x: FieldElement::new(68),
+                y: FieldElement::new(74),
+                is_infinity: false,
+            }
+        );
     }
 }

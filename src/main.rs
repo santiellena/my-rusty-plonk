@@ -12,6 +12,9 @@ mod my_field;
 #[path = "my_math/ext_euclidean_algo.rs"]
 mod gcd;
 
+#[path = "my_math/toy_pairing.rs"]
+mod my_toy_pairing;
+
 #[path = "my_math/kzg.rs"]
 mod my_kzg;
 
