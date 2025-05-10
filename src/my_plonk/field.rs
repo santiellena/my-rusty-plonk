@@ -1,4 +1,4 @@
-use crate::gcd;
+use super::ext_euclidean_algo as gcd;
 
 use std::ops::{AddAssign, Div, Mul};
 

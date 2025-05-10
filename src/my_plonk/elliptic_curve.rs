@@ -1,4 +1,4 @@
-use crate::my_field::{FieldElement, FieldElementExt};
+use super::field::{FieldElement, FieldElementExt};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Point {

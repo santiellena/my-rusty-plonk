@@ -1,4 +1,4 @@
-use crate::field::FieldElement;
+use super::field::FieldElement;
 use ark_bn254::g1::G1Affine;
 // use ark_bn254::Fr;
 use ark_ec::{AffineRepr, CurveGroup};

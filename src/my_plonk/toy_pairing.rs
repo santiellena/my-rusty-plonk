@@ -1,4 +1,4 @@
-use crate::my_field::FieldElement;
+use super::field::FieldElement;
 
 /*
     Disclaimer: This is obviously a toy pairing implementation.

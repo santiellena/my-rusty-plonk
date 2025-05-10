@@ -1,7 +1,7 @@
-use crate::my_elliptic_curve::{EllipticCurve, Point, PointExt};
-use crate::my_field::FieldElement;
-use crate::my_polynomial::Polynomial;
-use crate::my_toy_pairing::Pairing;
+use super::elliptic_curve::{EllipticCurve, Point, PointExt};
+use super::field::FieldElement;
+use super::polynomial::Polynomial;
+use super::toy_pairing::Pairing;
 use rand::Rng;
 
 /*

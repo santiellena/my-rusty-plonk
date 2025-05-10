@@ -1,4 +1,4 @@
-use crate::field::FieldElement;
+use super::field::FieldElement;
 use std::ops::{Add, Mul, Sub};
 
 #[derive(Clone, Debug, PartialEq)]
