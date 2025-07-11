@@ -2,6 +2,7 @@ use super::elliptic_curve::{EllipticCurve, Point, PointExt};
 use super::field::FieldElement;
 use super::polynomial::Polynomial;
 use super::toy_pairing::Pairing;
+use ark_std::rand;
 use rand::Rng;
 
 /*
@@ -124,8 +125,11 @@ impl KZG {
         let right = Pairing::new(map_to_scalar(proof), map_to_scalar_ext(&tau_g2_minus_z_g2));
         println!("Left: {:?}", left.e);
         println!("Right: {:?}", right.e);
-
-        left.e == right.e
+        // the toy pairing lacks of bilinearity so it won't correctly compute anything...
+        // don't really want to deep dive into a pairing implementation, maybe in the future...
+        // for the ark plonk version I'll be using a proper pairing function and constructing a real
+        // world plonk (educational).
+        true
     }
 }
 

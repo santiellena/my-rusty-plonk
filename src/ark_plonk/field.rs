@@ -69,6 +69,11 @@ impl FieldElement {
     pub fn pow(&self, exp: u64) -> Self {
         FieldElement(self.0.pow(&[exp]))
     }
+
+    #[allow(dead_code)]
+    pub fn to_fr(&self) -> Fr {
+        self.0
+    }
 }
 
 impl fmt::Debug for FieldElement {

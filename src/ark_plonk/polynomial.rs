@@ -79,7 +79,7 @@ impl Polynomial {
     }
 
     #[allow(dead_code)]
-    fn evaluate(&self, x: FieldElement) -> FieldElement {
+    pub fn evaluate(&self, x: FieldElement) -> FieldElement {
         self.coeffs
             .iter()
             .rev()
